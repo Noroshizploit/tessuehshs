@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Matrix Generator</title>
+
+<style>
+:root{
+  --card:#02091a;
+  --accent:#22c55e;
+  --muted:#9ff2c7;
+}
+*{box-sizing:border-box;font-family:Inter,system-ui}
+body{margin:0;background:#000;color:#eafff8}
+canvas{position:fixed;inset:0;z-index:-1}
+
+.wrap{
+  max-width:1100px;
+  margin:40px auto;
+  padding:28px;
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+  backdrop-filter:blur(18px);
+  border-radius:22px;
+  box-shadow:0 0 120px rgba(34,197,94,.25);
+  display:grid;
+  grid-template-columns:1fr 460px;
+  gap:24px;
+}
+
+header{grid-column:1/-1;display:flex;gap:14px;align-items:center}
+.avatar{
+  width:62px;height:62px;border-radius:50%;
+  background:url("https://files.catbox.moe/lg5s5a.jpg") center/cover;
+  border:3px solid var(--accent);
+  box-shadow:0 0 20px rgba(34,197,94,.8);
+}
+
+label{font-size:13px;color:var(--muted)}
+textarea,input,select{
+  width:100%;margin-top:8px;padding:12px;
+  border-radius:10px;border:none;
+  background:var(--card);color:#eafff8;
+}
+
+.buttons{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+button{
+  padding:10px 18px;
+  border:none;border-radius:10px;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  font-weight:700;cursor:pointer;
+  box-shadow:0 0 20px rgba(34,197,94,.7);
+}
+button.ghost{
+  background:transparent;
+  border:1px solid rgba(34,197,94,.4);
+  color:var(--muted);
+  box-shadow:none;
+}
+
+.right{
+  background:linear-gradient(180deg,rgba(0,0,0,.4),transparent);
+  border-radius:16px;padding:16px;
+}
+.preview{
+  height:460px;
+  border-radius:14px;
+  border:1px solid rgba(34,197,94,.4);
+  display:flex;align-items:center;justify-content:center;
+}
+.preview img{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+}
+
+.spinner{
+  width:46px;height:46px;border:4px solid rgba(255,255,255,.2);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+footer{text-align:center;font-size:12px;color:var(--muted);opacity:.6;margin-top:10px}
+</style>
+</head>
+
+<body>
+
+<audio id="bgm" autoplay muted loop>
+  <source src="https://files.catbox.moe/ptwzfc.mp4" type="audio/mp4">
+</audio>
+
+<canvas id="matrix"></canvas>
+
+<div class="wrap">
+<header>
+  <div class="avatar"></div>
+  <div>
+    <h2>Kyy Ah Ah</h2>
+    <small style="color:#9ff2c7">Sticker & IQC Generator</small>
+  </div>
+</header>
+
+<section>
+  <label>Text / Prompt</label>
+  <textarea id="text" rows="4" placeholder="masukkan teks..."></textarea>
+
+  <label style="margin-top:14px">Mode</label>
+  <select id="mode">
+    <option value="sticker">Sticker (Aqul)</option>
+    <option value="iqc">IQC</option>
+  </select>
+
+  <div class="buttons">
+    <button id="generate">Generate</button>
+    <button class="ghost" id="clear">Clear</button>
+    <button id="download">Download</button>
+  </div>
+</section>
+
+<aside class="right">
+  <div class="preview">
+    <div id="loading" style="display:none"><div class="spinner"></div></div>
+    <img id="img">
+  </div>
+</aside>
+
+<footer>© Matrix Generator</footer>
+</div>
+
+<script>
+document.body.addEventListener("click",()=>bgm.muted=false,{once:true});
+
+const c=matrix,x=c.getContext("2d");
+function rs(){c.width=innerWidth;c.height=innerHeight}
+rs();addEventListener("resize",rs);
+const ch="01アイウエオ";const s=14;
+let d=Array(Math.floor(c.width/s)).fill(1);
+setInterval(()=>{
+  x.fillStyle="rgba(0,0,0,.08)";
+  x.fillRect(0,0,c.width,c.height);
+  x.fillStyle="#22c55e";
+  x.font=s+"px monospace";
+  d.forEach((y,i)=>{
+    x.fillText(ch[Math.random()*ch.length|0],i*s,y*s);
+    if(y*s>c.height&&Math.random()>.975)d[i]=0;
+    d[i]++;
+  });
+},33);
+
+let blob=null;
+generate.onclick=async()=>{
+  if(!text.value.trim())return;
+  loading.style.display="block";
+  const modeVal=mode.value;
+  const url=
+    modeVal==="iqc"
+    ? `https://api-faa.my.id/faa/iqc?prompt=${encodeURIComponent(text.value)}`
+    : `https://aqul-brat.hf.space/?text=${encodeURIComponent(text.value)}`;
+
+  const res=await fetch(url);
+  blob=await res.blob();
+  img.src=URL.createObjectURL(blob);
+  loading.style.display="none";
+};
+
+download.onclick=()=>{
+  if(!blob)return;
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="matrix_result.png";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+};
+
+clear.onclick=()=>{
+  text.value="";img.src="";blob=null;
+};
+</script>
+</body>
+</html>
