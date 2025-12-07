@@ -3,251 +3,241 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Matrix Generator</title>
-
+<title>Kayzz</title>
 <style>
-:root{
-  --card:#02091a;
-  --accent:#22c55e;
-  --muted:#9ff2c7;
-}
+:root{--card:#02091a;--muted:#9ff2c7}
 *{box-sizing:border-box;font-family:Inter,system-ui}
-
 body{
-  margin:0;
-  background:#000;
-  color:#eafff8;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
+margin:0;background:#000;color:#eafff8;
+display:flex;justify-content:center;align-items:center;
+min-height:100vh;overflow:hidden
 }
-
-/* MATRIX */
-canvas{
-  position:fixed;
-  inset:0;
-  z-index:-1;
-}
-
-/* === CARD 9:16 === */
+canvas{position:fixed;inset:0;z-index:-1}
 .wrap{
-  width:360px;
-  aspect-ratio:9/16;
-  background:rgba(2,9,26,.94);
-  backdrop-filter:blur(10px);
-  border-radius:16px;
-  padding:14px;
-  box-shadow:
-    0 0 30px rgba(34,197,94,.45),
-    inset 0 0 0 1px rgba(255,255,255,.05);
-  display:flex;
-  flex-direction:column;
+width:360px;aspect-ratio:9/16;
+background:rgba(2,9,26,.94);
+border-radius:16px;padding:14px;
+box-shadow:0 0 30px rgba(34,197,94,.45);
+display:flex;flex-direction:column
 }
-
-/* HEADER */
-header{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  margin-bottom:12px;
-}
-
+header{display:flex;gap:10px;align-items:center;margin-bottom:12px}
 .avatar{
-  width:38px;
-  height:38px;
-  border-radius:50%;
-  background:url("https://files.catbox.moe/lg5s5a.jpg") center/cover;
-  border:2px solid var(--accent);
+width:38px;height:38px;border-radius:50%;
+background:url("https://files.catbox.moe/lg5s5a.jpg") center/cover;
+border:2px solid #22c55e
 }
-
-/* FORM */
-label{
-  font-size:11px;
-  color:var(--muted);
+label{font-size:11px;color:var(--muted)}
+textarea,select,input{
+width:100%;margin-top:6px;padding:7px;
+border-radius:7px;border:none;
+background:#02091a;color:#eafff8;font-size:11px
 }
-
-textarea,select{
-  width:100%;
-  margin-top:6px;
-  padding:7px;
-  border-radius:7px;
-  border:none;
-  background:var(--card);
-  color:#eafff8;
-  font-size:11px;
+.buttons{display:flex;gap:6px;margin-top:10px}
+@keyframes neon{
+0%{background-position:0% 50%}
+50%{background-position:100% 50%}
+100%{background-position:0% 50%}
 }
-
-/* BUTTON */
-.buttons{
-  display:flex;
-  gap:6px;
-  margin-top:10px;
-}
-
 button{
-  flex:1;
-  padding:6px 0;
-  border:none;
-  border-radius:7px;
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-  font-weight:700;
-  font-size:11px;
-  cursor:pointer;
+flex:1;padding:7px;border:none;border-radius:7px;
+font-weight:700;font-size:11px;cursor:pointer;
+background:linear-gradient(270deg,#22c55e,#06b6d4,#a855f7,#facc15,#22c55e);
+background-size:800% 800%;
+animation:neon 6s ease infinite;
+color:#001a0c
 }
 button.ghost{
-  background:transparent;
-  border:1px solid rgba(34,197,94,.4);
-  color:var(--muted);
+background:transparent;
+border:1px solid rgba(34,197,94,.4);
+color:var(--muted);
+animation:none
 }
-
-/* PREVIEW */
 .preview{
-  margin-top:14px;
-  flex:1;
-  background:rgba(0,0,0,.6);
-  border-radius:12px;
-  border:1px solid rgba(34,197,94,.35);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  overflow:hidden;
+margin-top:14px;flex:1;position:relative;
+background:rgba(0,0,0,.6);
+border-radius:12px;border:1px solid rgba(34,197,94,.35);
+display:flex;justify-content:center;align-items:center;
+overflow:hidden
 }
-
 .preview img{
-  max-width:75%;
-  max-height:75%;
-  object-fit:contain;
+max-width:80%;max-height:80%;
+display:none;z-index:2
 }
-
-/* LOADING */
-.spinner{
-  width:26px;height:26px;
-  border:3px solid rgba(255,255,255,.25);
-  border-top-color:var(--accent);
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-footer{
-  text-align:center;
-  font-size:9px;
-  color:var(--muted);
-  opacity:.6;
-  margin-top:8px;
-}
+.loading-video{position:absolute;inset:0;display:none;z-index:1}
+.loading-video video{width:100%;height:100%;object-fit:cover}
+footer{text-align:center;font-size:9px;color:var(--muted);margin-top:8px}
 </style>
 </head>
-
 <body>
-
-<audio id="bgm" autoplay muted loop>
-  <source src="https://files.catbox.moe/ptwzfc.mp4" type="audio/mp4">
+<audio id="bgm" loop>
+<source src="https://files.catbox.moe/ptwzfc.mp4" type="audio/mp4">
 </audio>
-
 <canvas id="matrix"></canvas>
 
 <div class="wrap">
-
 <header>
-  <div class="avatar"></div>
-  <div>
-    <strong style="font-size:12px">Kyy Ah Ah</strong><br>
-    <small style="font-size:10px;color:#9ff2c7">Sticker Generator</small>
-  </div>
+<div class="avatar"></div>
+<div>
+<strong>Kyy Ah Ah</strong><br>
+<small style="color:#9ff2c7">Sticker Generator</small>
+</div>
 </header>
 
-<label>Text / Prompt</label>
-<textarea id="text" rows="2" placeholder="masukkan teks..."></textarea>
-
-<label style="margin-top:10px">Mode</label>
-<select id="mode">
-  <option value="aqul">Sticker Brat</option>
-  <option value="iqc">IQC</option>
-  <option value="ustad">Pak Ustad v2</option>
+<label>Mode Type</label>
+<select id="type">
+<option value="text">Mode Biasa (Text)</option>
+<option value="pro">Mode Pro (Upload)</option>
 </select>
 
+<label>Text / Query</label>
+<textarea id="text" rows="2"></textarea>
+
+<label id="uploadLabel" style="display:none">Upload Image</label>
+<input type="file" id="file" accept="image/*" style="display:none">
+
+<label>Mode</label>
+<select id="mode"></select>
+
 <div class="buttons">
-  <button id="generate">Generate</button>
-  <button class="ghost" id="clear">Clear</button>
-  <button id="download">Download</button>
+<button id="generate">Generate</button>
+<button id="download">Download</button>
+<button class="ghost" id="clear">Clear</button>
 </div>
 
 <div class="preview">
-  <div id="loading" style="display:none">
-    <div class="spinner"></div>
-  </div>
-  <img id="img">
+<div class="loading-video" id="loading">
+<video autoplay muted loop playsinline>
+<source src="https://c.termai.cc/v191/BIM0EO.mp4" type="video/mp4">
+</video>
+</div>
+<img id="img">
 </div>
 
 <footer>© Powered By Kyy</footer>
 </div>
 
 <script>
-/* AUDIO */
-document.body.addEventListener("click",()=>bgm.muted=false,{once:true})
+document.body.addEventListener("click",()=>{bgm.play().catch(()=>{})},{once:true})
 
-/* MATRIX */
-const c = matrix,
-      x = c.getContext("2d")
-
-function resize(){
-  c.width = innerWidth
-  c.height = innerHeight
-}
-resize()
-addEventListener("resize",resize)
-
-const chars="01アイウエオ"
-const size=14
-let drops=Array(Math.floor(c.width/size)).fill(1)
-
+const canvas=matrix,ctx=canvas.getContext("2d")
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight}
+resize();addEventListener("resize",resize)
+const chars="01アイウエオ",size=14
+let drops=Array(200).fill(1)
 setInterval(()=>{
-  x.fillStyle="rgba(0,0,0,.12)"
-  x.fillRect(0,0,c.width,c.height)
-  x.fillStyle="#22c55e"
-  x.font=size+"px monospace"
-  drops.forEach((y,i)=>{
-    x.fillText(chars[Math.random()*chars.length|0],i*size,y*size)
-    if(y*size>c.height && Math.random()>.99) drops[i]=0
-    drops[i]++
-  })
+ctx.fillStyle="rgba(0,0,0,.12)"
+ctx.fillRect(0,0,canvas.width,canvas.height)
+ctx.fillStyle="#22c55e"
+ctx.font=size+"px monospace"
+drops.forEach((y,i)=>{
+const x=i*size
+ctx.fillText(chars[Math.random()*chars.length|0],x,y*size)
+if(y*size>canvas.height&&Math.random()>.99)drops[i]=0
+drops[i]++
+})
 },60)
 
-/* GENERATOR */
+const type=document.getElementById("type")
+const mode=document.getElementById("mode")
+const text=document.getElementById("text")
+const file=document.getElementById("file")
+const img=document.getElementById("img")
+const loading=document.getElementById("loading")
+const uploadLabel=document.getElementById("uploadLabel")
 let blob=null
+
+const textModes={
+aqul:"Sticker Brat",
+iqc:"IQC",
+ustad:"Pak Ustad v2",
+codesnap:"CodeSnap"
+}
+
+const proModes=[
+"superhd","toanime","tobabi","toblonde","tobotak","tobrewok",
+"tochibi","todpr","todubai","tofigura","toghibli","tohijab",
+"tohitam","tojapanese","tokacamata",
+"tokamboja","tolego","toliquor","tomaid","tomangu","tomaya",
+"tomekah","tomirror","tomoai","tomonyet","topacarv2","topeci",
+"topiramida","topolaroid","topunk","toputih","toreal",
+"toroblox","toroh","tosad","tosatan","tosdmtinggi","tosingapura",
+"tostreetwear","totato","toturky","tounderground","toviking",
+"tovintage","tozombie",
+"removebg","mpls","img2ios","jmk48"
+]
+
+function loadMode(){
+mode.innerHTML=""
+if(type.value==="text"){
+uploadLabel.style.display=file.style.display="none"
+Object.keys(textModes).forEach(v=>{
+mode.innerHTML+=`<option value="${v}">${textModes[v]}</option>`
+})
+}else{
+uploadLabel.style.display=file.style.display="block"
+proModes.forEach(v=>mode.innerHTML+=`<option value="${v}">${v}</option>`)
+}
+}
+type.onchange=loadMode
+loadMode()
+
+async function uploadImage(f){
+const fd=new FormData()
+fd.append("file",f)
+const r=await fetch("https://tmpfiles.org/api/v1/upload",{method:"POST",body:fd})
+const j=await r.json()
+return j.data.url.replace("tmpfiles.org/","tmpfiles.org/dl/")
+}
+
 generate.onclick=async()=>{
-  if(!text.value.trim()) return
-  loading.style.display="block"
-
-  let url =
-    mode.value==="iqc"
-    ? `https://api-faa.my.id/faa/iqc?prompt=${encodeURIComponent(text.value)}`
-    : mode.value==="ustad"
-    ? `https://api.taka.my.id/pak-ustadv2?text=${encodeURIComponent(text.value)}`
-    : `https://aqul-brat.hf.space/?text=${encodeURIComponent(text.value)}`
-
-  const r = await fetch(url)
-  blob = await r.blob()
-  img.src = URL.createObjectURL(blob)
-  loading.style.display="none"
+loading.style.display="block"
+img.style.display="none"
+let url=""
+if(type.value==="text"){
+if(!text.value.trim()) return alert("Isi teks")
+if(mode.value==="codesnap"){
+url=`https://kyyokatsurestapi.my.id/maker/codesnap?text=${encodeURIComponent(text.value)}`
+}else if(mode.value==="iqc"){
+url=`https://api-faa.my.id/faa/iqc?prompt=${encodeURIComponent(text.value)}`
+}else if(mode.value==="ustad"){
+url=`https://api.taka.my.id/pak-ustadv2?text=${encodeURIComponent(text.value)}`
+}else{
+url=`https://aqul-brat.hf.space/?text=${encodeURIComponent(text.value)}`
+}
+}else{
+if(!file.files[0]) return alert("Upload gambar")
+const u=await uploadImage(file.files[0])
+if(mode.value==="removebg"){
+url=`https://kyyokatsurestapi.my.id/tools/removebg?url=${encodeURIComponent(u)}`
+}else if(["mpls","img2ios","jmk48"].includes(mode.value)){
+url=`https://kyyokatsurestapi.my.id/maker/${mode.value}?url=${encodeURIComponent(u)}`
+}else{
+url=`https://api-faa.my.id/faa/${mode.value}?url=${encodeURIComponent(u)}`
+}
+}
+const r=await fetch(url)
+blob=await r.blob()
+img.src=URL.createObjectURL(blob)
+img.style.display="block"
+loading.style.display="none"
 }
 
 download.onclick=()=>{
-  if(!blob) return
-  const a=document.createElement("a")
-  a.href=URL.createObjectURL(blob)
-  a.download="sticker.png"
-  a.click()
+if(!blob) return
+const a=document.createElement("a")
+a.href=URL.createObjectURL(blob)
+a.download="result.png"
+a.click()
 }
 
 clear.onclick=()=>{
-  text.value=""
-  img.src=""
-  blob=null
+text.value=""
+file.value=""
+img.src=""
+img.style.display="none"
+blob=null
+loading.style.display="none"
 }
 </script>
-
 </body>
 </html>
